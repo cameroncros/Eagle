@@ -1,7 +1,10 @@
 package eagle.sdkInterface.sdkAdaptors.Simulator;
 
 import eagle.Log;
+import eagle.navigation.positioning.BasicPosition;
+import eagle.navigation.positioning.GPSPosition;
 import eagle.navigation.positioning.Position;
+import eagle.navigation.positioning.RelativePosition;
 import eagle.sdkInterface.AdaptorLoader;
 import eagle.sdkInterface.SDKAdaptor;
 
@@ -69,9 +72,25 @@ public class Simulator extends SDKAdaptor {
     }
 
     @Override
-    public boolean flyToRelative(Position position, double speed) {
-        Position endPos = new Position(getPositionAssigned());
-        endPos.add(position);
+    public boolean flyTo(BasicPosition position, double speed) {
+        return false;
+    }
+
+    @Override
+    public boolean flyTo(BasicPosition position) {
+        return flyTo(position, maxSpeed);
+    }
+
+    @Override
+    public boolean flyTo(RelativePosition position, double speed) {
+        Position endPos;
+        if (getHomePosition() instanceof BasicPosition) {
+            endPos = ((BasicPosition)getHomePosition()).add(position);
+        } else if (getHomePosition() instanceof GPSPosition) {
+            endPos = ((GPSPosition)getHomePosition()).add(position);
+        } else {
+            return false;
+        }
 
 
 
@@ -114,28 +133,34 @@ public class Simulator extends SDKAdaptor {
                 latitude = endPos.getLatitude();
             }
 
-            Position newPos = new Position(longitude, latitude, altitude, position.getRoll(), position.getPitch(), position.getYaw());
-            setPositionAssigned(newPos);
+            if (getHomePosition() instanceof BasicPosition) {
+                BasicPosition newPos = new BasicPosition(longitude, latitude, altitude, position.getRoll(), position.getPitch(), position.getYaw());
+                setPositionAssigned(newPos);
+            } else if (getHomePosition() instanceof GPSPosition) {
+                GPSPosition newPos = new GPSPosition(longitude, latitude, altitude, position.getRoll(), position.getPitch(), position.getYaw());
+                setPositionAssigned(newPos);
+            }
+
             delay(1000);
 
-            Log.log("Current Position: "+ newPos.toString());
+            Log.log("Current Position: "+ getPositionAssigned().toString());
         }
         return true;
     }
 
     @Override
-    public boolean flyToRelative(Position position) {
-        return flyToRelative(position, maxSpeed);
+    public boolean flyTo(RelativePosition position) {
+        return flyTo(position, maxSpeed);
     }
 
     @Override
-    public boolean flyToGPS(Position position, double speed) {
+    public boolean flyTo(GPSPosition position, double speed) {
         return false;
     }
 
     @Override
-    public boolean flyToGPS(Position position) {
-        return flyToGPS(position, maxSpeed);
+    public boolean flyTo(GPSPosition position) {
+        return flyTo(position, maxSpeed);
     }
 
     @Override

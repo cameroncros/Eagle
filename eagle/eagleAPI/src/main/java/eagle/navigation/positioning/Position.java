@@ -32,21 +32,15 @@ public abstract class Position{
         this.yaw=position.yaw;
     }
 
+    public abstract String toPrettyString();
+
+
     public double getLongitude(){return this.longitude;};
     public double getLatitude(){return this.latitude;};
     public double getAltitude(){return this.altitude;};
     public double getRoll(){return this.roll;};
     public double getPitch(){return this.pitch;};
     public Bearing getYaw(){return this.yaw;};
-
-    @Override
-    public String toString(){
-        return getLongitude()+" "+getLatitude()+" "+getAltitude()+" "+getRoll()+" "+getPitch()+" "+getYaw();
-    }
-
-    public String toPrettyString(){
-        return "Longitude: "+getLongitude()+", Latitude: "+getLatitude()+", Altitude: "+getAltitude()+", Roll: "+getRoll()+", Pitch: "+getPitch()+", Yaw: "+getYaw().toPrettyString();
-    }
 
     public boolean isEqual(Position position) {
         return (Math.abs(position.getAltitude() - altitude) < 0.00001 &&
