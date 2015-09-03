@@ -2,6 +2,7 @@ package eagle.sdkInterface.sdkAdaptors.Simulator;
 
 import eagle.Log;
 import eagle.navigation.positioning.BasicPosition;
+import eagle.navigation.positioning.Bearing;
 import eagle.navigation.positioning.GPSPosition;
 import eagle.navigation.positioning.Position;
 import eagle.navigation.positioning.RelativePosition;
@@ -30,6 +31,8 @@ public class Simulator extends SDKAdaptor {
         super("Simulator","Siumulator","alpha","0.0.1");
         maxSpeed = speed;
         maxRotateSpeed = rotateSpeed;
+        setHomePosition(new BasicPosition(0,0,0,0,0,new Bearing(0)));
+        setPositionAssigned(new BasicPosition(0,0,0,0,0,new Bearing(0)));
     }
 
     @Override

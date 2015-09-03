@@ -20,6 +20,8 @@ public class Phantom2Vision extends SDKAdaptor {
 
     public Phantom2Vision(){
         super("DJI","Phantom 2 Vision","1.0.6","0.0.1");
+        setHomePosition(new GPSPosition(0,0,0,0,0,new Bearing(0)));
+        setPositionAssigned(new GPSPosition(0, 0, 0, 0, 0, new Bearing(0)));
     }
 
     public void loadDefaultSensorAdaptors(AdaptorLoader adaptorLoader){

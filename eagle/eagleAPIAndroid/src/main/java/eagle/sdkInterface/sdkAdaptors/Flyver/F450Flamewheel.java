@@ -22,6 +22,8 @@ public class F450Flamewheel extends SDKAdaptor {
 
     public F450Flamewheel(){
         super("FLyver","F450 Flamewheel","alpha","0.0.1");
+        setHomePosition(new BasicPosition(0,0,0,0,0,new Bearing(0)));
+        setPositionAssigned(new BasicPosition(0, 0, 0, 0, 0, new Bearing(0)));
     }
     public void loadDefaultSensorAdaptors(AdaptorLoader adaptorLoader){
         addSensorAdaptorAccelerometer(adaptorLoader.getSensorAdaptorAccelerometer("AndroidAccelerometer"));
