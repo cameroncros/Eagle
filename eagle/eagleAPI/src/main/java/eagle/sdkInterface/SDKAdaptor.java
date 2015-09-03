@@ -43,8 +43,6 @@ public abstract class SDKAdaptor {
         this.adaptorModel=adaptorModel;
         this.sdkVersion=sdkVersion;
         this.adaptorVersion=adaptorVersion;
-        this.homePosition=new BasicPosition(0,0,0,0,0,new Bearing(0));
-        this.currentPositionAssigned = new BasicPosition(0,0,0,0,0,new Bearing(0));
     }
     public abstract void loadDefaultSensorAdaptors(AdaptorLoader adaptorLoader);
 
