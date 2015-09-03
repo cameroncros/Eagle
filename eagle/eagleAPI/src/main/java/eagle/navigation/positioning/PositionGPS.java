@@ -3,6 +3,7 @@ package eagle.navigation.positioning;
 /**
  * Created by Cameron on 4/09/2015.
  */
+//Position based on GPS Position
 public class PositionGPS extends Position {
     public PositionGPS(double longitude, double latitude, double altitude, double roll, double pitch, Bearing yaw) {
         super(longitude, latitude, altitude, roll, pitch, yaw);

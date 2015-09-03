@@ -3,6 +3,7 @@ package eagle.navigation.positioning;
 /**
  * Created by Cameron on 4/09/2015.
  */
+// Basic position relative to the drones home position
 public class PositionBasic extends Position {
     public PositionBasic(double longitude, double latitude, double altitude, double roll, double pitch, Bearing yaw) {
         super(longitude, latitude, altitude, roll, pitch, yaw);
