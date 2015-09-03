@@ -16,29 +16,23 @@ public class Bearing
 	 */
 	public Bearing(double angle){
 		degrees = angle % 360;
-		normalise();
-	}
-	public Bearing(Bearing bearing){
-		this.degrees=bearing.getDegrees();
-	}
-
-	public void add(Bearing val) {
-		this.degrees+=val.getDegrees();
-		normalise();
-	}
-	public void minus(Bearing bearing){
-		//TODO 360 Degree Boundry Calculation
-		this.degrees=this.degrees-(this.degrees-bearing.getDegrees());
-		normalise();
-	}
-
-	private void normalise() {
 		while(degrees < 0) {
 			degrees += 360;
 		}
 		while(degrees > 360) {
 			degrees -= 360;
 		}
+	}
+	public Bearing(Bearing bearing){
+		this.degrees=bearing.getDegrees();
+	}
+
+	public Bearing add(Bearing val) {
+		return new Bearing (this.degrees+val.getDegrees());
+	}
+
+	public Bearing minus(Bearing val) {
+		return new Bearing (this.degrees-val.getDegrees());
 	}
 
 	public double getDegrees() {

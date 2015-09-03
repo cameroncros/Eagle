@@ -9,6 +9,9 @@ import java.util.Set;
 
 import eagle.navigation.positioning.Bearing;
 import eagle.navigation.positioning.Position;
+import eagle.navigation.positioning.PositionBasic;
+import eagle.navigation.positioning.PositionGPS;
+import eagle.navigation.positioning.PositionRelative;
 import eagle.sdkInterface.SDKAdaptor;
 
 /**
@@ -151,13 +154,40 @@ public class ScriptingEngine {
                     } else {
                         throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
                     }
+                case "FLYTOBASIC":
+                    if (array.length == 5) {
+                        double lon = Double.parseDouble(array[1]);
+                        double lat = Double.parseDouble(array[2]);
+                        double alt = Double.parseDouble(array[3]);
+                        double bea = Double.parseDouble(array[4]);
+                        PositionBasic newPos = new PositionBasic(lon, lat, alt, 0, 0, new Bearing(bea));
+                        if (adaptor.flyToBasic(newPos)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else if (array.length == 6) {
+                        double lon = Double.parseDouble(array[1]);
+                        double lat = Double.parseDouble(array[2]);
+                        double alt = Double.parseDouble(array[3]);
+                        double bea = Double.parseDouble(array[4]);
+                        double spe = Double.parseDouble(array[5]);
+                        PositionBasic newPos = new PositionBasic(lon, lat, alt, 0, 0, new Bearing(bea));
+                        if (adaptor.flyToBasic(newPos, spe)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else {
+                        throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
+                    }
                 case "FLYTORELATIVE":
                     if (array.length == 5) {
                         double lon = Double.parseDouble(array[1]);
                         double lat = Double.parseDouble(array[2]);
                         double alt = Double.parseDouble(array[3]);
                         double bea = Double.parseDouble(array[4]);
-                        Position newPos = new Position(lon, lat, alt, 0, 0, new Bearing(bea));
+                        PositionRelative newPos = new PositionRelative(lon, lat, alt, 0, 0, new Bearing(bea));
                         if (adaptor.flyToRelative(newPos)) {
                             return "SUCCESS";
                         } else {
@@ -169,7 +199,7 @@ public class ScriptingEngine {
                         double alt = Double.parseDouble(array[3]);
                         double bea = Double.parseDouble(array[4]);
                         double spe = Double.parseDouble(array[5]);
-                        Position newPos = new Position(lon, lat, alt, 0, 0, new Bearing(bea));
+                        PositionRelative newPos = new PositionRelative(lon, lat, alt, 0, 0, new Bearing(bea));
                         if (adaptor.flyToRelative(newPos, spe)) {
                             return "SUCCESS";
                         } else {
@@ -184,7 +214,7 @@ public class ScriptingEngine {
                         double lat = Double.parseDouble(array[2]);
                         double alt = Double.parseDouble(array[3]);
                         double bea = Double.parseDouble(array[4]);
-                        Position newPos = new Position(lon, lat, alt, 0, 0, new Bearing(bea));
+                        PositionGPS newPos = new PositionGPS(lon, lat, alt, 0, 0, new Bearing(bea));
                         if (adaptor.flyToGPS(newPos)) {
                             return "SUCCESS";
                         } else {
@@ -196,8 +226,84 @@ public class ScriptingEngine {
                         double alt = Double.parseDouble(array[3]);
                         double bea = Double.parseDouble(array[4]);
                         double spe = Double.parseDouble(array[5]);
-                        Position newPos = new Position(lon, lat, alt, 0, 0, new Bearing(bea));
+                        PositionGPS newPos = new PositionGPS(lon, lat, alt, 0, 0, new Bearing(bea));
                         if (adaptor.flyToGPS(newPos, spe)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else {
+                        throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
+                    }
+                case "CHANGELONGITUDEBASIC":
+                    if (array.length == 2) {
+                        double val = Double.parseDouble(array[1]);
+                        if (adaptor.changeLongitudeBasic(val)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else if (array.length == 3) {
+                        double val = Double.parseDouble(array[1]);
+                        double spe = Double.parseDouble(array[2]);
+                        if (adaptor.changeLongitudeBasic(val, spe)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else {
+                        throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
+                    }
+                case "CHANGELATITUDEBASIC":
+                    if (array.length == 2) {
+                        double val = Double.parseDouble(array[1]);
+                        if (adaptor.changeLatitudeBasic(val)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else if (array.length == 3) {
+                        double val = Double.parseDouble(array[1]);
+                        double spe = Double.parseDouble(array[2]);
+                        if (adaptor.changeLatitudeBasic(val, spe)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else {
+                        throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
+                    }
+                case "CHANGEALTITUDEBASIC":
+                    if (array.length == 2) {
+                        double val = Double.parseDouble(array[1]);
+                        if (adaptor.changeAltitudeBasic(val)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else if (array.length == 3) {
+                        double val = Double.parseDouble(array[1]);
+                        double spe = Double.parseDouble(array[2]);
+                        if (adaptor.changeAltitudeBasic(val, spe)) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else {
+                        throw new InvalidInstructionException("Wrong Number of Values: " + instruction);
+                    }
+                case "CHANGEYAWBASIC":
+                    if (array.length == 2) {
+                        double val = Double.parseDouble(array[1]);
+                        if (adaptor.changeYawBasic(new Bearing(val))) {
+                            return "SUCCESS";
+                        } else {
+                            return "FAIL";
+                        }
+                    } else if (array.length == 3) {
+                        double val = Double.parseDouble(array[1]);
+                        double spe = Double.parseDouble(array[2]);
+                        if (adaptor.changeYawBasic(new Bearing(val), spe)) {
                             return "SUCCESS";
                         } else {
                             return "FAIL";

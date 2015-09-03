@@ -7,13 +7,13 @@ package eagle.navigation.positioning;
  * @author          Nicholas Alards [7178301@student.swin.edu.au]
  * @author          Cameron Cross [7193432@student.swin.edu.au]*/
 
-public class Position{
-	private double longitude;
-	private double latitude;
-	private double altitude;
+public abstract class Position{
+	protected double longitude;
+    protected double latitude;
+    protected double altitude;
     private double roll;
 	private double pitch;
-	private Bearing yaw;
+	protected Bearing yaw;
 
     public Position(double longitude, double latitude, double altitude,double roll, double pitch, Bearing yaw){
         this.longitude=longitude;
@@ -38,35 +38,6 @@ public class Position{
     public double getRoll(){return this.roll;};
     public double getPitch(){return this.pitch;};
     public Bearing getYaw(){return this.yaw;};
-
-    public void add(Position position){
-        this.longitude+=position.getLongitude();
-        this.latitude+=position.getLatitude();
-        this.altitude+=position.getAltitude();
-        this.yaw.add(position.getYaw());
-    }
-
-    public void minus(Position position){
-        this.longitude-=position.getLongitude();
-        this.latitude-=position.getLatitude();
-        this.altitude-=position.getAltitude();
-        this.yaw.minus(position.getYaw());
-    }
-
-
-
-
-    public boolean equals(Position position) {
-        if(longitude==position.getLongitude()&&
-                latitude==position.getLatitude()&&
-                altitude==position.getAltitude()&&
-                roll==position.getRoll()&&
-                pitch==position.pitch&&
-                yaw.getDegrees()==position.getYaw().getDegrees())
-            return true;
-        else
-            return false;
-    }
 
     @Override
     public String toString(){
