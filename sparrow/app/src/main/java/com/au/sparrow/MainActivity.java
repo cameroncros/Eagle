@@ -6,21 +6,27 @@ import android.util.Log;
 import dji.sdk.api.DJIDrone;
 import dji.sdk.api.DJIDroneTypeDef;
 import dji.sdk.api.DJIError;
+import dji.sdk.api.MainController.DJIMainControllerSystemState;
+import dji.sdk.interfaces.DJIExecuteResultCallback;
 import dji.sdk.interfaces.DJIGerneralListener;
+import dji.sdk.api.MainController.DJIMainController;
+import dji.sdk.interfaces.DJIMcuUpdateStateCallBack;
+
 import java.lang.Thread;
 
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "PhantomII";
-    //DJIDrone drone = new DJIDrone();
+    DJIMainController controller = new DJIMainController();
+    DJIDrone drone = new DJIDrone();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.e(TAG, "initwithtype = " + DJIDrone.initWithType(
+        Log.e(TAG, "initwithtype = " + drone.initWithType(
                 getApplicationContext(),
                 DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
-        DJIDrone.connectToDrone();
+        drone.connectToDrone();
 
         //It can't do without a thread
         new Thread() {
@@ -28,7 +34,7 @@ public class MainActivity extends ActionBarActivity {
             public void run() {
                 try {
                     //Your code goes here
-                    DJIDrone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
+                    drone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
                         @Override
                         public void onGetPermissionResult(int result) {
                             //Log.e(TAG, "onGetPermissionResult = " + result);
@@ -46,22 +52,22 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void onInitSDK() {
-        Log.e(TAG, "GetLevel = " + DJIDrone.getLevel());
-        Log.e(TAG, "Before Connecting to The Drone.");
-        boolean check = false || DJIDrone.connectToDrone();
-        Log.e(TAG, "After Connecting to The Drone.");
+        Log.e(TAG, "GetLevel = " + drone.getLevel());
+        //Log.e(TAG, "Before Connecting to The Drone.");
+        boolean check = drone.connectToDrone();
+        //Log.e(TAG, "After Connecting to The Drone.");
         Log.e(TAG, "connectToDrone = "+check);
+        fly(check);
     }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
-        DJIDrone.disconnectToDrone();
+        drone.disconnectToDrone();
         super.onDestroy();
     }
-}
+    protected void fly(boolean ConnectToDrone){
 
-/*
         if (ConnectToDrone) {
             final long waiting = 1000000;
             controller = drone.getDjiMainController();
@@ -93,4 +99,6 @@ public class MainActivity extends ActionBarActivity {
             });
 
         }
- */
+
+    }
+}
