@@ -1,70 +1,96 @@
 package com.au.sparrow;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import dji.sdk.api.DJIDrone;
-import dji.sdk.api.DJIDroneTypeDef;
-import dji.sdk.api.DJIError;
-import dji.sdk.api.MainController.DJIPhantomMainController;
-import dji.sdk.interfaces.DJIExecuteResultCallback;
-import dji.sdk.interfaces.DJIGerneralListener;
-import dji.sdk.interfaces.DJIMcuUpdateStateCallBack;
 
 import java.lang.Thread;
 
-public class MainActivity extends ActionBarActivity {
+import dji.sdk.api.DJIDrone;
+import dji.sdk.api.DJIDroneTypeDef;
+import dji.sdk.api.DJIError;
+import dji.sdk.api.GroundStation.DJIGroundStationTypeDef;
+import dji.sdk.interfaces.DJIExecuteResultCallback;
+import dji.sdk.interfaces.DJIGerneralListener;
+import dji.sdk.interfaces.DJIGroundStationExecutCallBack;
+import dji.sdk.interfaces.DJIGroundStationTakeOffCallBack;
+import dji.sdk.interfaces.DJIReceivedVideoDataCallBack;
+import dji.sdk.widget.DjiGLSurfaceView;
+
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PhantomII";
-    DJIDrone drone = new DJIDrone();
-    final long waiting = 1000;
+
+    private DJIReceivedVideoDataCallBack mReceivedVideoDataCallBack = null;
+    private DjiGLSurfaceView mDjiGLSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        Log.e(TAG, "initwithtype = " + drone.initWithType(
-                getApplicationContext(),
-                DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
 
-        //It can't do without a thread
-        new Thread() {
-            @Override
-            public void run() {
-                try {
+        //It can't do without a thread\
+                try
+
+                {
                     //Your code goes here
-                    drone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
+                    DJIDrone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
                         @Override
                         public void onGetPermissionResult(int result) {
-                            //Log.e(TAG, "onGetPermissionResult = " + result);
-                            Log.e(TAG, "onGetPermissionResultDescription = " +
-                                    DJIError.getCheckPermissionErrorDescription(result));
-                            if (result == 0)
-                                onInitSDK();
+                            Log.e(TAG, "onGetPermissionResult = " + result);
+
+                            //Log.e(TAG, "onGetPermissionResultDescription = " +DJIError.getCheckPermissionErrorDescription(result));
                         }
                     });
-                } catch (Exception e) {
+                } catch (
+                        Exception e
+                        )
+
+                {
                     e.printStackTrace();
                 }
-            }
-        }.start();
+
+        onInitSDK();
     }
 
     private void onInitSDK() {
-        Log.e(TAG, "GetLevel = " + drone.getLevel());
+        Log.e(TAG, "initwithtype = " + DJIDrone.initWithType(getApplicationContext(), DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
+
+        Log.e(TAG, "GetLevel = " + DJIDrone.getLevel());
         //Log.e(TAG, "Before Connecting to The Drone.");
-        boolean check = drone.connectToDrone();
+        boolean check = DJIDrone.connectToDrone();
         //Log.e(TAG, "After Connecting to The Drone.");
         Log.e(TAG, "connectToDrone = " + check);
-        if (check) fly();
+
+
+        mDjiGLSurfaceView = (DjiGLSurfaceView)findViewById(R.id.DjiSurfaceView_02);
+        mDjiGLSurfaceView.start();
+
+        mReceivedVideoDataCallBack = new DJIReceivedVideoDataCallBack(){
+            @Override
+            public void onResult(byte[] videoBuffer, int size){
+                mDjiGLSurfaceView.setDataToDecoder(videoBuffer, size);
+            }
+        };
+        DJIDrone.getDjiCamera().setReceivedVideoDataCallBack(mReceivedVideoDataCallBack);
+
+        DJIDrone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecutCallBack() {
+            @Override
+            public void onResult(DJIGroundStationTypeDef.GroundStationResult groundStationResult) {
+                Log.e(TAG, groundStationResult.toString());
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
-        drone.disconnectToDrone();
+        DJIDrone.disconnectToDrone();
         super.onDestroy();
     }
-    
+}
+    /*
     protected void fly() {
         callback.INSTANCE.start();
         drone.getDjiMC().turnOnMotor(new DJIExecuteResultCallback() {
