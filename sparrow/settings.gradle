@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':DJI-SDK-LIB'
+project(':DJI-SDK-LIB').projectDir = new File('app/libs/DJI-SDK-LIB')

@@ -1,20 +1,15 @@
 package com.au.sparrow;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
 import java.lang.Thread;
-
 import dji.sdk.api.DJIDrone;
 import dji.sdk.api.DJIDroneTypeDef;
 import dji.sdk.api.DJIError;
 import dji.sdk.api.GroundStation.DJIGroundStationTypeDef;
-import dji.sdk.interfaces.DJIExecuteResultCallback;
 import dji.sdk.interfaces.DJIGerneralListener;
-import dji.sdk.interfaces.DJIGroundStationExecutCallBack;
-import dji.sdk.interfaces.DJIGroundStationTakeOffCallBack;
+import dji.sdk.interfaces.DJIGroundStationExecuteCallBack;
 import dji.sdk.interfaces.DJIReceivedVideoDataCallBack;
 import dji.sdk.widget.DjiGLSurfaceView;
 
@@ -28,34 +23,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG, "initwithtype = " + DJIDrone.initWithType(getApplicationContext(), DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
 
-
-        //It can't do without a thread\
-                try
-
-                {
+        //It can't do without a thread
+        new Thread() {
+            @Override
+            public void run() {
+                try {
                     //Your code goes here
                     DJIDrone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
                         @Override
                         public void onGetPermissionResult(int result) {
-                            Log.e(TAG, "onGetPermissionResult = " + result);
-
-                            //Log.e(TAG, "onGetPermissionResultDescription = " +DJIError.getCheckPermissionErrorDescription(result));
+                            //Log.e(TAG, "onGetPermissionResult = " + result);
+                            Log.e(TAG, "onGetPermissionResultDescription = " +
+                                    DJIError.getCheckPermissionErrorDescription(result));
+                            if (result == 0)
+                                onInitSDK();
                         }
                     });
-                } catch (
-                        Exception e
-                        )
-
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-        onInitSDK();
+            }
+        }.start();
     }
 
     private void onInitSDK() {
-        Log.e(TAG, "initwithtype = " + DJIDrone.initWithType(getApplicationContext(), DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
 
         Log.e(TAG, "GetLevel = " + DJIDrone.getLevel());
         //Log.e(TAG, "Before Connecting to The Drone.");
@@ -75,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         };
         DJIDrone.getDjiCamera().setReceivedVideoDataCallBack(mReceivedVideoDataCallBack);
 
-        DJIDrone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecutCallBack() {
+        DJIDrone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecuteCallBack() {
             @Override
             public void onResult(DJIGroundStationTypeDef.GroundStationResult groundStationResult) {
                 Log.e(TAG, groundStationResult.toString());
