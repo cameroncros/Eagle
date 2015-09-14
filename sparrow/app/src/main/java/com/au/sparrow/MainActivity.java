@@ -6,24 +6,40 @@ import android.util.Log;
 import java.lang.Thread;
 import dji.sdk.api.DJIDrone;
 import dji.sdk.api.DJIDroneTypeDef;
-import dji.sdk.api.DJIError;
-import dji.sdk.api.GroundStation.DJIGroundStationTypeDef;
+import dji.sdk.api.GroundStation.DJIGroundStation;
+import dji.sdk.api.GroundStation.DJIGroundStationTask;
+import dji.sdk.api.GroundStation.DJIGroundStationWaypoint;
+import dji.sdk.api.MainController.DJIMainControllerSystemState;
+import dji.sdk.api.MainController.DJIPhantomMainController;
+import dji.sdk.interfaces.DJIExecuteBooleanResultCallback;
+import dji.sdk.interfaces.DJIExecuteFloatResultCallback;
 import dji.sdk.interfaces.DJIGerneralListener;
-import dji.sdk.interfaces.DJIGroundStationExecuteCallBack;
+import dji.sdk.interfaces.DJIGroundStationExecutCallBack;
+import dji.sdk.interfaces.DJIMcuUpdateStateCallBack;
 import dji.sdk.interfaces.DJIReceivedVideoDataCallBack;
 import dji.sdk.widget.DjiGLSurfaceView;
+import dji.sdk.api.GroundStation.DJIGroundStationTypeDef.GroundStationResult;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "PhantomII";
+    boolean permission = false;
 
     private DJIReceivedVideoDataCallBack mReceivedVideoDataCallBack = null;
     private DjiGLSurfaceView mDjiGLSurfaceView;
+    DJIPhantomMainController mc = new DJIPhantomMainController();
+    DJIGroundStation gs = new DJIGroundStation();
+    private DJIMcuUpdateStateCallBack mMcuUpdateStateCallBack = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e(TAG, "initwithtype = " + DJIDrone.initWithType(getApplicationContext(), DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
+        //This doesn't currently do callback
+        mMcuUpdateStateCallBack = new DJIMcuUpdateStateCallBack(){
+            public void onResult(DJIMainControllerSystemState state) {
+                Log.e(TAG,"DJIMainControllerSystemState = "+state);
+            }
+        };
 
         //It can't do without a thread
         new Thread() {
@@ -34,29 +50,30 @@ public class MainActivity extends AppCompatActivity {
                     DJIDrone.checkPermission(getApplicationContext(), new DJIGerneralListener() {
                         @Override
                         public void onGetPermissionResult(int result) {
-                            //Log.e(TAG, "onGetPermissionResult = " + result);
-                            Log.e(TAG, "onGetPermissionResultDescription = " +
-                                    DJIError.getCheckPermissionErrorDescription(result));
-                            if (result == 0)
-                                onInitSDK();
+                            Log.e(TAG, "onGetPermissionResult = " + result);
+                            if (result==0)
+                            permission = true;
                         }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    });} catch (Exception e) {e.printStackTrace();}
             }
         }.start();
+
+        while (permission!=true)
+        {
+
+        }
+        onInitSDK();
     }
 
     private void onInitSDK() {
-
+        Log.e(TAG, "init with type = " + DJIDrone.initWithType(getApplicationContext(), DJIDroneTypeDef.DJIDroneType.DJIDrone_Vision));
         Log.e(TAG, "GetLevel = " + DJIDrone.getLevel());
-        //Log.e(TAG, "Before Connecting to The Drone.");
-        boolean check = DJIDrone.connectToDrone();
-        //Log.e(TAG, "After Connecting to The Drone.");
-        Log.e(TAG, "connectToDrone = " + check);
+        Log.e(TAG, "connectToDrone = " + DJIDrone.connectToDrone());
+        cameraGo();
+        GroundStationGo();
+    }
 
-
+    public void cameraGo(){
         mDjiGLSurfaceView = (DjiGLSurfaceView)findViewById(R.id.DjiSurfaceView_02);
         mDjiGLSurfaceView.start();
 
@@ -67,93 +84,49 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         DJIDrone.getDjiCamera().setReceivedVideoDataCallBack(mReceivedVideoDataCallBack);
-
-        DJIDrone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecuteCallBack() {
-            @Override
-            public void onResult(DJIGroundStationTypeDef.GroundStationResult groundStationResult) {
-                Log.e(TAG, groundStationResult.toString());
-            }
-        });
     }
 
-    @Override
-    protected void onDestroy() {
-        // TODO Auto-generated method stub
-        DJIDrone.disconnectToDrone();
-        super.onDestroy();
+    public void GroundStationGo(){
+        mc.startUpdateTimer(1000);
+        gs.startUpdateTimer(1000);
+
+        mc.getGohomeAltitude(new DJIExecuteFloatResultCallback() {
+            @Override
+            public void onResult(float v) {
+                Log.e(TAG, "get Go home Altitude = " + v);
+            }
+        });
+
+        mc.getSmartBatteryGohomeFlag(new DJIExecuteBooleanResultCallback() {
+            @Override
+            public void onResult(boolean b) {
+                Log.e(TAG, "getSmartBatteryGohomeFlag = " + b);
+            }
+        });
+
+        //This doesn't come back with any result either
+        Log.e(TAG, "getMcuVersion = " + mc.getMcuVersion());
+
+        //This doesn't come back with any result either
+        gs.openGroundStation(new DJIGroundStationExecutCallBack() {
+            @Override
+            public void onResult(GroundStationResult result) {
+                Log.e(TAG, "Uselessly hanging out here.");
+                Log.e(TAG, "openGroundStation = " + result);
+            }
+        });
+
+        //DJIGroundStationWaypoint waypoint = new DJIGroundStationWaypoint(); //lat, long : dounbles
+        DJIGroundStationTask task1 = new DJIGroundStationTask();
+        //DJIDrone.getDjiCamera().setReceivedVideoDataCallBack(mReceivedVideoDataCallBack);
+        DJIDrone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecutCallBack() {
+            @Override
+            public void onResult(GroundStationResult result) {
+                Log.e(TAG, "Uselessly hanging out here.");
+                Log.e(TAG, "openGroundStation = " + result);
+            }
+        });
+        //Came back successful
+
     }
 }
-    /*
-    protected void fly() {
-        callback.INSTANCE.start();
-        drone.getDjiMC().turnOnMotor(new DJIExecuteResultCallback() {
-            @Override
-            public void onResult(DJIError mErr) {
-                Log.e(TAG, "mErr = " + mErr.errorDescription);
-            }
-        });
-        }
-
-    public void takeoff(){
-        final long waiting = 1000000;
-        drone.getDjiMC().startTakeoff(new DJIExecuteResultCallback() {
-            @Override
-            public void onResult(DJIError mErr) {
-                Log.e(TAG, "mErr = " + mErr);
-                try {
-                    wait(waiting);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "************\n\n" + e + "\n\n");
-                }
-            }
-        });
-    }
-}
-
-/*
-drone.getDjiGroundStation().openGroundStation(new DJIGroundStationExecuteCallBack() {
-            @Override
-            public void onResult(DJIGroundStationTypeDef.GroundStationResult groundStationResult) {
-                if (groundStationResult == DJIGroundStationTypeDef.GroundStationResult.GS_Result_Success) {
-                    Log.e(TAG, "groundStationResult = " + groundStationResult.toString());
-                }
-            }
-        });
- */
-
-/*
-drone.getDjiGroundStation().sendFlightControlData(0, 0, 0, 1, new DJIExecuteResultCallback() {
-                    @Override
-                    public void onResult(DJIError djiError) {
-                        Log.e(TAG, "djiError = " + djiError.errorDescription);
-                        try {
-                            wait(waiting);
-                            //takeoff();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.e(TAG, "************\n\n" + e + "\n\n");
-                        }
-                    }
-                }
-        );
- */
-
-/*
-        drone.getDjiBattery().startUpdateTimer(10000);
-        drone.getDjiBattery().getPartVoltages(new DJIBatteryGetPartVoltageCallBack() {
-            @Override
-            public void onResult(int[] ints) {
-                Log.e(TAG, "ints = " + ints);
-
-            }
-        });
-
-        drone.getDjiBattery().getBatteryConnectionStatus(new DJISmartBatteryExecuteResultCallback() {
-            @Override
-            public void onResult(double v, DJIError djiError) {
-                Log.e(TAG, "djiError = " + djiError.errorDescription);
-
-            }
-        });
- */
